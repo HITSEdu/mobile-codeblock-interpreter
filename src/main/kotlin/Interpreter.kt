@@ -1,16 +1,16 @@
 import hitsedu.interpreter.models.Scope
-import hitsedu.interpreter.models.operation.OperationArray
-import hitsedu.interpreter.models.operation.OperationArrayIndex
-import hitsedu.interpreter.models.operation.OperationElse
-import hitsedu.interpreter.models.operation.OperationFor
-import hitsedu.interpreter.models.operation.OperationIf
-import hitsedu.interpreter.models.operation.OperationOutput
-import hitsedu.interpreter.models.operation.OperationVariable
+import models.operation.OperationArray
+import models.operation.OperationArrayIndex
+import models.operation.OperationElse
+import models.operation.OperationFor
+import models.operation.OperationIf
+import models.operation.OperationOutput
+import models.operation.OperationVariable
 import processor.process
 import utils.MockData
 
 class Interpreter {
-    val program = MockData.nestedProgram
+    val program = MockData.arrayTest
 
     val variables = mutableListOf<OperationVariable>()
     val arrays = mutableListOf<OperationArray>()

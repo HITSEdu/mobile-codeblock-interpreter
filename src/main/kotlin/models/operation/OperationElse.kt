@@ -1,7 +1,6 @@
-package hitsedu.interpreter.models.operation
+package models.operation
 
 import hitsedu.interpreter.models.Scope
-import models.operation.Operation
 
 data class OperationElse(
     val scope: Scope,

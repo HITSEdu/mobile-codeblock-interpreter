@@ -1,7 +1,7 @@
 package processor
 
-import hitsedu.interpreter.models.operation.OperationArray
-import hitsedu.interpreter.models.operation.OperationVariable
+import models.operation.OperationArray
+import models.operation.OperationVariable
 
 fun OperationArray.process(variables: List<OperationVariable>): OperationArray {
     val values = values.map { value ->

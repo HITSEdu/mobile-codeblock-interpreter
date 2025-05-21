@@ -1,7 +1,6 @@
 package processor
 
-import hitsedu.interpreter.models.operation.OperationFor
-import hitsedu.interpreter.models.operation.OperationIf
+import models.operation.OperationFor
 
 fun OperationFor.process() {
     println("For")

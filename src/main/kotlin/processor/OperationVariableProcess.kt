@@ -1,6 +1,6 @@
 package processor
 
-import hitsedu.interpreter.models.operation.OperationVariable
+import models.operation.OperationVariable
 
 fun OperationVariable.process(variables: List<OperationVariable>): OperationVariable {
 

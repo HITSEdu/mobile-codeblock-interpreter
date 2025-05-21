@@ -1,6 +1,6 @@
 package processor
 
-import hitsedu.interpreter.models.operation.OperationIf
+import models.operation.OperationIf
 
 fun OperationIf.process() {
 

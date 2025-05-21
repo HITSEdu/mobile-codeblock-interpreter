@@ -1,7 +1,6 @@
 package processor
 
-import hitsedu.interpreter.models.operation.OperationElse
-import hitsedu.interpreter.models.operation.OperationIf
+import models.operation.OperationElse
 
 fun OperationElse.process() {
     println("Else")

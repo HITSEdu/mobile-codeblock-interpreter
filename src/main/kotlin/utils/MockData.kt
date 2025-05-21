@@ -3,10 +3,11 @@ package utils
 import hitsedu.interpreter.models.Scope
 import hitsedu.interpreter.models.ScopeGlobal
 import hitsedu.interpreter.models.Value
-import hitsedu.interpreter.models.operation.OperationArray
-import hitsedu.interpreter.models.operation.OperationIf
-import hitsedu.interpreter.models.operation.OperationOutput
-import hitsedu.interpreter.models.operation.OperationVariable
+import models.operation.OperationArray
+import models.operation.OperationArrayIndex
+import models.operation.OperationIf
+import models.operation.OperationOutput
+import models.operation.OperationVariable
 
 object MockData {
     val printVariable = ScopeGlobal(
@@ -62,6 +63,31 @@ object MockData {
 
         ),
         arrayUIOS = emptyList(),
+    )
+
+    val arrayTest = ScopeGlobal(
+        id = 1,
+        variableUIOS = emptyList(),
+        arrayUIOS = emptyList(),
+        operations = listOf(
+            OperationArray(
+                name = "arr",
+                size = 0,
+                values = listOf(
+                    Value("1"),
+                    Value("0"),
+                    Value("14"),
+                    Value("42"),
+                ),
+                id = 148,
+            ),
+            OperationArrayIndex(
+                name = "arr",
+                index = Value("1"),
+                value = Value("1604"),
+                id = 996152,
+            )
+        )
     )
 
     val nestedProgram = ScopeGlobal(

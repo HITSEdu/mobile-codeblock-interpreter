@@ -1,7 +1,6 @@
-package hitsedu.interpreter.models.operation
+package models.operation
 
 import hitsedu.interpreter.models.Value
-import models.operation.Operation
 
 data class OperationOutput(
     val value: Value,
