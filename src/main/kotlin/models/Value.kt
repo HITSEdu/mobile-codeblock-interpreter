@@ -1,4 +1,4 @@
-package hitsedu.interpreter.models
+package models
 
 data class Value(
     val value: String = "",

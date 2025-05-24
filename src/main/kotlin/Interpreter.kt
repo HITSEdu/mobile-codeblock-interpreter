@@ -1,4 +1,4 @@
-import hitsedu.interpreter.models.Scope
+import models.Scope
 import models.operation.OperationArray
 import models.operation.OperationArrayIndex
 import models.operation.OperationElse
@@ -10,7 +10,7 @@ import processor.process
 import utils.MockData
 
 class Interpreter {
-    val program = MockData.arrayTest
+    val program = MockData.printIf
 
     val variables = mutableListOf<OperationVariable>()
     val arrays = mutableListOf<OperationArray>()
@@ -20,7 +20,6 @@ class Interpreter {
 
     fun process(scope: Scope = program) {
         if (!visited.add(scope.id)) return
-        if (!visited.contains(scope.id)) visited.add(scope.id)
         for (operation in scope.operations) {
             when (operation) {
                 is OperationVariable -> variables.add(operation.process(variables))
@@ -28,16 +27,15 @@ class Interpreter {
                 is OperationArrayIndex -> operation.process(arrays)
                 is OperationOutput -> console.add(operation.process())
                 is OperationIf -> {
-                    operation.process()
-                    process(operation.scope)
+                    if (operation.process(variables, arrays)) {
+                        process(operation.scope)
+                    }
                 }
                 is OperationElse -> {
-                    operation.process()
                     process(operation.scope)
                 }
                 is OperationFor -> {
-                    operation.process()
-                    process(operation.scope)
+                    operation.process(variables, arrays, this)
                 }
             }
         }

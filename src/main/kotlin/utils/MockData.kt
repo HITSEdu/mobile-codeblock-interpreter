@@ -1,13 +1,9 @@
 package utils
 
-import hitsedu.interpreter.models.Scope
-import hitsedu.interpreter.models.ScopeGlobal
-import hitsedu.interpreter.models.Value
-import models.operation.OperationArray
-import models.operation.OperationArrayIndex
-import models.operation.OperationIf
-import models.operation.OperationOutput
-import models.operation.OperationVariable
+import models.Scope
+import models.ScopeGlobal
+import models.Value
+import models.operation.*
 
 object MockData {
     val printVariable = ScopeGlobal(
@@ -154,5 +150,103 @@ object MockData {
             )
         )
     )
+
+
+
+    val forLoopTest = ScopeGlobal(
+        id = 500,
+        variableUIOS = emptyList(),
+        arrayUIOS = emptyList(),
+        operations = listOf(
+            OperationFor(
+                id = 1002,
+                variable = OperationVariable(
+                    name = "i",
+                    value = Value("0")
+                ),
+                condition = Value("i < 5"),
+                value = Value("i + 1"), // Изменили на простое выражение без присваивания
+                scope = Scope(
+                    id = 2,
+                    operations = listOf(
+                        OperationArrayIndex(
+                            name = "arr",
+                            index = Value("i"),
+                            value = Value("i * 2"),
+                            id = 1003
+                        )
+                    )
+                )
+            )
+
+        )
+    )
+
+
+    val forLoopTest1 = ScopeGlobal(
+        id = 1,
+        variableUIOS = emptyList(),
+        arrayUIOS = emptyList(),
+        operations = listOf(
+            // Объявление массива
+            OperationArray(
+                name = "arr",
+                size = 5,
+                values = List(5) { Value("0") }, // [0, 0, 0, 0, 0]
+                id = 1001
+            ),
+
+            // Цикл for
+            OperationFor(
+                id = 1002,
+                variable = OperationVariable(
+                    name = "i",
+                    value = Value("0")
+                ),
+                condition = Value("i < 5"),
+                value = Value("i = i + 1"), // Увеличиваем i
+                scope = Scope(
+                    id = 2,
+                    operations = listOf(
+                        OperationArrayIndex(
+                            name = "arr",
+                            index = Value("i"),
+                            value = Value("i * 2"), // Записываем i*2
+                            id = 1003
+                        )
+                    )
+                )
+            )
+        )
+    )
+
+
+    val printFromForLoop = ScopeGlobal(
+        id = 999,
+        variableUIOS = emptyList(),
+        arrayUIOS = emptyList(),
+        operations = listOf(
+            OperationFor(
+                id = 1001,
+                variable = OperationVariable(
+                    name = "i",
+                    value = Value("1") // старт
+                ),
+                condition = Value("i <= 5"), // условие продолжения
+                value = Value("i = i + 1"),  // шаг
+                scope = Scope(
+                    id = 1002,
+                    operations = listOf(
+                        OperationOutput(
+                            value = Value("i"),
+                            id = 1003
+                        )
+                    )
+                )
+            )
+        )
+    )
+
+
 
 }

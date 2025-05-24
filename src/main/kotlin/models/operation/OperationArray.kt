@@ -1,6 +1,6 @@
 package models.operation
 
-import hitsedu.interpreter.models.Value
+import models.Value
 
 data class OperationArray(
     val name: String,
