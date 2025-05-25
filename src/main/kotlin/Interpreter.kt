@@ -10,7 +10,7 @@ import processor.process
 import utils.MockData
 
 class Interpreter {
-    val program = MockData.printIf
+    val program = MockData.forLoopTest1
 
     val variables = mutableListOf<OperationVariable>()
     val arrays = mutableListOf<OperationArray>()
@@ -22,9 +22,9 @@ class Interpreter {
         if (!visited.add(scope.id)) return
         for (operation in scope.operations) {
             when (operation) {
-                is OperationVariable -> variables.add(operation.process(variables))
+                is OperationVariable -> variables.add(operation.process(variables, arrays))
                 is OperationArray -> arrays.add(operation.process(variables))
-                is OperationArrayIndex -> operation.process(arrays)
+                is OperationArrayIndex -> operation.process(variables, arrays)
                 is OperationOutput -> console.add(operation.process())
                 is OperationIf -> {
                     if (operation.process(variables, arrays)) {
@@ -39,5 +39,12 @@ class Interpreter {
                 }
             }
         }
+    }
+
+    fun copyForScopeExecution(arrays: MutableList<OperationArray>): Interpreter {
+        val copy = Interpreter()
+        copy.variables.addAll(this.variables)
+        copy.arrays.addAll(arrays)
+        return copy
     }
 }

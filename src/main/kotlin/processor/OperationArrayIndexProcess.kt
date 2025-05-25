@@ -1,17 +1,29 @@
 package processor
 
+import models.Value
 import models.operation.OperationArray
 import models.operation.OperationArrayIndex
+import models.operation.OperationVariable
+import utils.Parser
 
-fun OperationArrayIndex.process(arrays: MutableList<OperationArray>){
-    val idx = index.value.toIntOrNull() ?: return // TODO("throw IllegalArgument exception")
+fun OperationArrayIndex.process(
+    variables: MutableList<OperationVariable>,
+    arrays: MutableList<OperationArray>
+) {
+    val idx = index.value.toIntOrNull() ?:
+    Parser.parseMathExpression(index.value) { name ->
+        Value(name).process(variables, arrays)
+    }
 
-    val i = arrays.indexOfFirst { it.name == name }
-    if (i == -1) return //TODO("throw index out of bound")
+    val calculatedValue = Parser.parseMathExpression(value.value) { name ->
+        Value(name).process(variables, arrays)
+    }
 
-    val array = arrays[i]
-    if (idx !in array.values.indices) return // TODO("throw index of bound")
+    val array = arrays.find { it.name == name } ?: error("Array $name not found")
+    if (idx !in array.values.indices) error("Index $idx out of bounds")
 
-    val values = array.values.mapIndexed { j, v -> if (j == idx) value else v }
-    arrays[i] = array.copy(values = values)
+    val newValues = array.values.toMutableList().apply {
+        this[idx] = Value(calculatedValue.toString())
+    }
+    arrays[arrays.indexOf(array)] = array.copy(values = newValues)
 }
