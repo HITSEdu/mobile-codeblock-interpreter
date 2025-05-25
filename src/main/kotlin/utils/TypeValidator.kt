@@ -1,6 +1,6 @@
 package utils
 
-import hitsedu.interpreter.models.Value
+import models.Value
 import models.operation.OperationArray
 import models.operation.OperationVariable
 

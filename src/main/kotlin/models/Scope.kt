@@ -1,4 +1,4 @@
-package hitsedu.interpreter.models
+package models
 
 import models.operation.Operation
 
