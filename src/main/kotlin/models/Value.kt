@@ -1,6 +1,6 @@
 package models
 
 data class Value(
-    val value: String = "",
+    var value: String = "",
     val id: Long = 0,
 )
