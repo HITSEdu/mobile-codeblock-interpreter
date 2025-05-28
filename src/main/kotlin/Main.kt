@@ -1,6 +1,7 @@
+import utils.MockData
+
 fun main() {
     val interpreter = Interpreter()
-    interpreter.process()
-    println(interpreter.console.joinToString("\n") { it.output })
-    println(interpreter.arrays)
+    interpreter.process(MockData.arrayTest.globalScope)
+    println(interpreter.getConsole().joinToString("\n"))
 }

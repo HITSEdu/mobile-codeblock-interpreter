@@ -10,7 +10,6 @@ fun OperationIf.process(
     variables: MutableList<OperationVariable>,
     arrays: MutableList<OperationArray>
 ): Boolean {
-    // Функция для разрешения значений в условии
     fun resolve(name: String): Int {
         return variables.find { it.name == name }?.value?.value?.toIntOrNull()
             ?: arrays.firstOrNull { array ->

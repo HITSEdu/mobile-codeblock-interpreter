@@ -8,5 +8,5 @@ fun OperationArray.process(variables: List<OperationVariable>): OperationArray {
         val variable = variables.find { it.name == value.value }
         value.copy(value = variable?.value?.value ?: value.value)
     }
-    return this.copy(values = values)
+    return copy(values = values)
 }

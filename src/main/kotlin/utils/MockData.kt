@@ -1,252 +1,300 @@
 package utils
 
+import hitsedu.interpreter.models.Project
 import models.Scope
-import models.ScopeGlobal
 import models.Value
 import models.operation.*
 
 object MockData {
-    val printVariable = ScopeGlobal(
-        operations = listOf(
-            OperationVariable(
-                name = "a",
-                value = Value("50"),
-                id = 1,
-            ),
-            OperationOutput(
-                value = Value("50"),
-                id = 3,
-            )
-        ),
-        id = 5,
-        variableUIOS = listOf(
-            OperationVariable(
-                name = "a",
-                value = Value("50"),
-                id = 1,
-            )
-        ),
-        arrayUIOS = emptyList(),
-    )
-
-    val printIf = ScopeGlobal(
-        operations = listOf(
-            OperationVariable(
-                name = "you",
-                value = Value("danil"),
-                id = 40,
-            ),
-            OperationIf(
-                scope = Scope(
-                    listOf(
-                        OperationVariable(
-                            name = "test",
-                            value = Value("15"),
-                            id = 92,
-                        ),
-                        OperationOutput(
-                            value = Value("50"),
-                            id = 3,
-                        )
-                    )
+    val testOutput = Project(
+        caption = "test output",
+        scale = 1f,
+        scopes = emptyList(),
+        globalScope = Scope(
+            operations = listOf(
+                OperationArray(
+                    name = "arr",
+                    values = listOf(
+                        Value("13"),
+                        Value("84"),
+                    ),
+                    id = 8,
                 ),
-                value = Value("5 < 16"),
-                id = 1488,
-            )
-        ),
-        id = 15,
-        variableUIOS = listOf(
-
-        ),
-        arrayUIOS = emptyList(),
-    )
-
-    val arrayTest = ScopeGlobal(
-        id = 1,
-        variableUIOS = emptyList(),
-        arrayUIOS = emptyList(),
-        operations = listOf(
-            OperationArray(
-                name = "arr",
-                size = 0,
-                values = listOf(
-                    Value("1"),
-                    Value("0"),
-                    Value("14"),
-                    Value("42"),
+                OperationVariable(
+                    name = "a",
+                    value = Value("\"150\""),
+                    id = 1,
                 ),
-                id = 148,
+                OperationVariable(
+                    name = "logic",
+                    value = Value("true"),
+                    id = 5,
+                ),
+                OperationOutput(
+                    value = Value("a"),
+                    id = 33,
+                ),
+                OperationOutput(
+                    value = Value("arr"),
+                    id = 333,
+                ),
+                OperationOutput(
+                    value = Value("arr[2]"),
+                    id = 3333,
+                ),
+                OperationOutput(
+                    value = Value("14 + 1000"),
+                    id = 33333,
+                ),
+                OperationOutput(
+                    value = Value("(1 + 2 - 3) * 5 + 100/10"),
+                    id = 33333,
+                ),
+                OperationOutput(
+                    value = Value("a < 10"),
+                    id = 33333,
+                ),
+                OperationOutput(
+                    value = Value("5 = 5"),
+                    id = 33333,
+                ),
+                OperationOutput(
+                    value = Value("logic"),
+                    id = 33333,
+                ),
             ),
-            OperationArrayIndex(
-                name = "arr",
-                index = Value("1"),
-                value = Value("1604"),
-                id = 996152,
-            )
-        )
+            id = 5,
+        ),
+        id = 0,
     )
 
-    val nestedProgram = ScopeGlobal(
-        id = 1,
-        variableUIOS = emptyList(),
-        arrayUIOS = emptyList(),
-        operations = listOf(
-            // var
-            OperationVariable(
-                name = "x",
-                value = Value("10"),
-                id = 100
-            ),
-
-            // if {
-            OperationIf(
-                value = Value("x > 5"),
-                id = 101,
-                scope = Scope(
-                    id = 2,
-                    operations = listOf(
-                        // var
-                        OperationVariable(
-                            name = "y",
-                            value = Value("20"),
-                            id = 102
-                        ),
-
-                        // if {
-                        OperationIf(
-                            value = Value("y == 20"),
-                            id = 103,
-                            scope = Scope(
+    val printIf = Project(
+        caption = "test if",
+        scale = 1f,
+        scopes = emptyList(),
+        globalScope = Scope(
+            operations = listOf(
+                OperationVariable(
+                    name = "you",
+                    value = Value("\"danil\""),
+                    id = 40,
+                ),
+                OperationIf(
+                    scope = Scope(
+                        listOf(
+                            OperationVariable(
+                                name = "test",
+                                value = Value("15"),
+                                id = 92,
+                            ),
+                            OperationOutput(
+                                value = Value("50"),
                                 id = 3,
-                                operations = listOf(
-                                    // arr
-                                    OperationArray(
-                                        name = "arr",
-                                        size = 3,
-                                        values = listOf(
-                                            Value("1"),
-                                            Value("2"),
-                                            Value("3")
-                                        ),
-                                        id = 104
+                            )
+                        )
+                    ),
+                    value = Value("5 < 16"),
+                    id = 1488,
+                ),
+                OperationOutput(
+                    value = Value("you"),
+                    id = 3,
+                )
+            ),
+            id = 15,
+        ),
+        id = 0,
+    )
+
+    val arrayTest = Project(
+        caption = "array test",
+        scale = 1f,
+        scopes = emptyList(),
+        globalScope = Scope(
+            operations = listOf(
+                OperationArray(
+                    name = "arr",
+                    size = 0,
+                    values = listOf(
+                        Value("1"),
+                        Value("2"),
+                        Value("3"),
+                        Value("4"),
+                    ),
+                    id = 148,
+                ),
+                OperationArrayIndex(
+                    name = "arr",
+                    index = Value("1"),
+                    value = Value("800"),
+                    id = 996152,
+                ),
+                OperationOutput(
+                    value = Value("arr"),
+                    id = 503,
+                )
+            ),
+            id = 1,
+        ),
+        id = 0
+    )
+
+    val nestedProgram = Project(
+        caption = "nested",
+        scale = 1f,
+        scopes = emptyList(),
+        globalScope = Scope(
+            id = 1,
+            operations = listOf(
+                OperationVariable(
+                    name = "x",
+                    value = Value("10"),
+                    id = 100
+                ),
+                OperationIf(
+                    value = Value("x > 5"),
+                    id = 101,
+                    scope = Scope(
+                        id = 2,
+                        operations = listOf(
+                            OperationVariable(
+                                name = "y",
+                                value = Value("20"),
+                                id = 102
+                            ),
+                            OperationIf(
+                                value = Value("y == 20"),
+                                id = 103,
+                                scope = Scope(
+                                    id = 3,
+                                    operations = listOf(
+                                        OperationArray(
+                                            name = "arr",
+                                            size = 3,
+                                            values = listOf(
+                                                Value("1"),
+                                                Value("2"),
+                                                Value("3")
+                                            ),
+                                            id = 104
+                                        )
                                     )
                                 )
+                            ),
+                            OperationOutput(
+                                value = Value("\"Inside outer if\""),
+                                id = 105
                             )
-                        ),
-
-                        // out
-                        OperationOutput(
-                            value = Value("\"Inside outer if\""),
-                            id = 105
                         )
                     )
-                )
-            ),
-
-            // out
-            OperationOutput(
-                value = Value("\"Outside if\""),
-                id = 106
-            )
-        )
-    )
-
-
-
-    val forLoopTest = ScopeGlobal(
-        id = 500,
-        variableUIOS = emptyList(),
-        arrayUIOS = emptyList(),
-        operations = listOf(
-            OperationFor(
-                id = 1002,
-                variable = OperationVariable(
-                    name = "i",
-                    value = Value("0")
                 ),
-                condition = Value("i < 5"),
-                value = Value("i + 1"), // Изменили на простое выражение без присваивания
-                scope = Scope(
-                    id = 2,
-                    operations = listOf(
-                        OperationArrayIndex(
-                            name = "arr",
-                            index = Value("i"),
-                            value = Value("i * 2"),
-                            id = 1003
-                        )
-                    )
+                OperationOutput(
+                    value = Value("\"Outside if\""),
+                    id = 106
                 )
             )
-
-        )
+        ),
+        id = 0,
     )
 
-
-    val forLoopTest1 = ScopeGlobal(
-        id = 1,
-        variableUIOS = emptyList(),
-        arrayUIOS = emptyList(),
-        operations = listOf(
-            // Объявление массива
-            OperationArray(
-                name = "arr",
-                size = 5,
-                values = List(5) { Value("0") }, // [0, 0, 0, 0, 0]
-                id = 1001
-            ),
-
-            // Цикл for
-            OperationFor(
-                id = 1002,
-                variable = OperationVariable(
-                    name = "i",
-                    value = Value("0")
-                ),
-                condition = Value("i < 5"),
-                value = Value("i = i + 1"), // Увеличиваем i
-                scope = Scope(
-                    id = 2,
-                    operations = listOf(
-                        OperationArrayIndex(
-                            name = "arr",
-                            index = Value("i"),
-                            value = Value("i * 2"), // Записываем i*2
-                            id = 1003
-                        )
-                    )
-                )
-            )
-        )
-    )
-
-
-    val printFromForLoop = ScopeGlobal(
-        id = 999,
-        variableUIOS = emptyList(),
-        arrayUIOS = emptyList(),
-        operations = listOf(
-            OperationFor(
-                id = 1001,
-                variable = OperationVariable(
-                    name = "i",
-                    value = Value("1") // старт
-                ),
-                condition = Value("i <= 5"), // условие продолжения
-                value = Value("i = i + 1"),  // шаг
-                scope = Scope(
+    val forLoopTest = Project(
+        caption = "for loop test",
+        scale = 1f,
+        scopes = emptyList(),
+        globalScope = Scope(
+            id = 500,
+            operations = listOf(
+                OperationFor(
                     id = 1002,
-                    operations = listOf(
-                        OperationOutput(
-                            value = Value("i"),
-                            id = 1003
+                    variable = OperationVariable(
+                        name = "i",
+                        value = Value("0")
+                    ),
+                    condition = Value("i < 5"),
+                    value = Value("i + 1"),
+                    scope = Scope(
+                        id = 2,
+                        operations = listOf(
+                            OperationArrayIndex(
+                                name = "arr",
+                                index = Value("i"),
+                                value = Value("i * 2"),
+                                id = 1003
+                            )
+                        )
+                    )
+                )
+
+            )
+        ),
+        id = 0
+    )
+
+    val forLoopTest1 = Project(
+        caption = "for loop test 1",
+        scale = 1f,
+        scopes = emptyList(),
+        globalScope = Scope(
+            id = 1,
+            operations = listOf(
+                OperationArray(
+                    name = "arr",
+                    size = 5,
+                    values = List(5) { Value("0") },
+                    id = 1001
+                ),
+                OperationFor(
+                    id = 1002,
+                    variable = OperationVariable(
+                        name = "i",
+                        value = Value("0")
+                    ),
+                    condition = Value("i < 5"),
+                    value = Value("i = i + 1"),
+                    scope = Scope(
+                        id = 2,
+                        operations = listOf(
+                            OperationArrayIndex(
+                                name = "arr",
+                                index = Value("i"),
+                                value = Value("i * 2"),
+                                id = 1003
+                            )
                         )
                     )
                 )
             )
-        )
+        ),
+        id = 0
     )
 
-
-
+    val printFromForLoop = Project(
+        caption = "print from for loop",
+        scale = 1f,
+        scopes = emptyList(),
+        globalScope = Scope(
+            id = 999,
+            operations = listOf(
+                OperationFor(
+                    id = 1001,
+                    variable = OperationVariable(
+                        name = "i",
+                        value = Value("1")
+                    ),
+                    condition = Value("i <= 5"),
+                    value = Value("i = i + 1"),
+                    scope = Scope(
+                        id = 1002,
+                        operations = listOf(
+                            OperationOutput(
+                                value = Value("i"),
+                                id = 1003
+                            )
+                        )
+                    )
+                )
+            )
+        ),
+        id = 0
+    )
 }

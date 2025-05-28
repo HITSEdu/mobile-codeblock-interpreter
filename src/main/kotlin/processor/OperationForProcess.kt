@@ -1,7 +1,6 @@
 package processor
 
 import Interpreter
-import models.Scope
 import models.Value
 import models.operation.OperationArray
 import models.operation.OperationFor
@@ -13,18 +12,10 @@ fun OperationFor.process(
     arrays: MutableList<OperationArray>,
     interpreter: Interpreter
 ) {
-    // 1. Инициализация переменной цикла
     initializeLoopVariable(variables, arrays)
-
-    // 2. Выполнение цикла
     while (shouldContinueLoop(variables, arrays)) {
-        // 3. Создаем изолированный контекст для тела цикла
         val loopInterpreter = createLoopInterpreter(interpreter, variables, arrays)
-
-        // 4. Выполняем тело цикла
         loopInterpreter.process(scope)
-
-        // 5. Обновляем состояние после итерации
         updateAfterIteration(loopInterpreter, variables, arrays)
     }
 }
@@ -62,10 +53,9 @@ private fun createLoopInterpreter(
     arrays: List<OperationArray>
 ): Interpreter {
     return Interpreter().apply {
-        // Копируем все состояния из родительского интерпретатора
-        this.variables.addAll(variables.map { it.copy() })
-        this.arrays.addAll(arrays.map { it.copy(values = it.values.toMutableList()) })
-        this.console.addAll(parent.console)
+//        variables.addAll(variables.map { it.copy() })
+//        arrays.addAll(arrays.map { it.copy(values = it.values.toMutableList()) })
+//        console.addAll(parent.getConsole())
     }
 }
 
@@ -74,15 +64,12 @@ private fun OperationFor.updateAfterIteration(
     variables: MutableList<OperationVariable>,
     arrays: MutableList<OperationArray>
 ) {
-    // 1. Обновляем переменные
     variables.clear()
-    variables.addAll(loopInterpreter.variables)
+    variables.addAll(loopInterpreter.getVariables())
 
-    // 2. Обновляем массивы
     arrays.clear()
-    arrays.addAll(loopInterpreter.arrays)
+    arrays.addAll(loopInterpreter.getArrays())
 
-    // 3. Обновляем переменную цикла
     val updatedValue = Parser.parseAssignment(
         exp = value.value,
         resolve = { resolveVariable(it, variables, arrays) },
@@ -93,19 +80,16 @@ private fun OperationFor.updateAfterIteration(
     updateVariable(variable.name, updatedValue, variables)
 }
 
-// region Вспомогательные функции
 
 private fun resolveVariable(
     name: String,
     variables: List<OperationVariable>,
     arrays: List<OperationArray>
 ): Int {
-    // 1. Пробуем найти обычную переменную
     variables.find { it.name == name }?.let {
         return it.value.value.toIntOrNull() ?: error("Invalid variable value: ${it.value.value}")
     }
 
-    // 2. Пробуем найти элемент массива
     val arrayAccess = parseArrayAccess(name) ?: error("Unknown variable: $name")
     val array = arrays.find { it.name == arrayAccess.first } ?: error("Array ${arrayAccess.first} not found")
 
@@ -152,5 +136,3 @@ private fun updateArrayElement(
         }
     }
 }
-
-// endregion

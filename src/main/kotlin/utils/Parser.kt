@@ -1,27 +1,10 @@
 package utils
 
+import utils.Operators.LOGIC
+import utils.Operators.MATH
 import java.util.Stack
 
 object Parser {
-    private val mathOperators = mapOf(
-        "+" to 1,
-        "-" to 1,
-        "*" to 2,
-        "/" to 2,
-        "=" to 0 // Низкий приоритет для присваивания
-    )
-
-    private val logicPrecedence = mapOf(
-        "||" to 1,
-        "&&" to 2,
-        "==" to 3,
-        "!=" to 3,
-        "<" to 3,
-        ">" to 3,
-        "<=" to 3,
-        ">=" to 3
-    )
-
     fun parseAssignment(
         exp: String,
         resolve: (String) -> Int,
@@ -41,6 +24,7 @@ object Parser {
                     assignVar(leftPart, value)
                     return value
                 }
+
                 leftPart.isArrayAccess() -> {
                     val (arrayName, index) = parseArrayAccess(leftPart)
                     val value = parseMathExpression(rightPart, resolve)
@@ -67,7 +51,7 @@ object Parser {
         for (token in tokens) {
             when {
                 token.isNumber() || token.isVariable() -> output.add(token)
-                token in mathOperators -> handleOperator(token, stack, output, mathOperators)
+                token in MATH -> handleOperator(token, stack, output, MATH)
                 token == "(" -> stack.push(token)
                 token == ")" -> handleClosingParenthesis(stack, output)
             }
@@ -82,13 +66,36 @@ object Parser {
         return evaluateMathRPN(output, resolve)
     }
 
+    fun parseLogicExpression(exp: String, resolve: (String) -> Int): Boolean {
+        val output = mutableListOf<String>()
+        val stack = Stack<String>()
+        val tokens = tokenizeLogic(exp)
+
+        for (token in tokens) {
+            when {
+                token.isOperand() -> output.add(token)
+                token in LOGIC -> handleOperator(token, stack, output, LOGIC)
+                token == "(" -> stack.push(token)
+                token == ")" -> handleClosingParenthesis(stack, output)
+            }
+        }
+
+        while (stack.isNotEmpty()) {
+            val op = stack.pop()
+            if (op == "(" || op == ")") error("Mismatched parentheses")
+            output.add(op)
+        }
+
+        return evaluateLogicRPN(output, resolve)
+    }
+
     private fun evaluateMathRPN(rpn: List<String>, resolve: (String) -> Int): Int {
         val stack = Stack<Int>()
         for (token in rpn) {
             when {
                 token.isNumber() -> stack.push(token.toInt())
                 token.isVariable() -> stack.push(resolve(token))
-                token in mathOperators -> {
+                token in MATH -> {
                     val b = stack.pop()
                     val a = stack.pop()
                     stack.push(applyMathOp(a, b, token))
@@ -106,29 +113,6 @@ object Parser {
         else -> error("Unknown math operator $op")
     }
 
-    fun parseLogicExpression(exp: String, resolve: (String) -> Int): Boolean {
-        val output = mutableListOf<String>()
-        val stack = Stack<String>()
-        val tokens = tokenizeLogic(exp)
-
-        for (token in tokens) {
-            when {
-                token.isOperand() -> output.add(token)
-                token in logicPrecedence -> handleOperator(token, stack, output, logicPrecedence)
-                token == "(" -> stack.push(token)
-                token == ")" -> handleClosingParenthesis(stack, output)
-            }
-        }
-
-        while (stack.isNotEmpty()) {
-            val op = stack.pop()
-            if (op == "(" || op == ")") error("Mismatched parentheses")
-            output.add(op)
-        }
-
-        return evaluateLogicRPN(output, resolve)
-    }
-
     private fun evaluateLogicRPN(rpn: List<String>, resolve: (String) -> Int): Boolean {
         val stack = Stack<Any>()
         for (token in rpn) {
@@ -138,6 +122,7 @@ object Parser {
                     val a = stack.pop()
                     stack.push(applyLogicOp(a, b, token, resolve))
                 }
+
                 else -> stack.push(token)
             }
         }
@@ -194,7 +179,7 @@ object Parser {
     private fun String.isVariable() = matches(Regex("[a-zA-Z_][a-zA-Z0-9_]*"))
     private fun String.isArrayAccess() = matches(Regex("""[a-zA-Z_][a-zA-Z0-9_]*\[\d+]"""))
     private fun String.isOperand() = matches(Regex("[a-zA-Z0-9_()+\\-*/]+"))
-    private fun String.isLogicOperator() = this in logicPrecedence
+    private fun String.isLogicOperator() = this in LOGIC
 
     private fun tokenize(exp: String): List<String> {
         val result = mutableListOf<String>()
@@ -204,11 +189,15 @@ object Parser {
         while (i < exp.length) {
             val c = exp[i]
             when {
-                c.isWhitespace() -> { i++ }
+                c.isWhitespace() -> {
+                    i++
+                }
+
                 c.isDigit() || c.isLetter() || c == '_' -> {
                     buffer.append(c)
                     i++
                 }
+
                 else -> {
                     if (buffer.isNotEmpty()) {
                         result.add(buffer.toString())
@@ -238,7 +227,7 @@ object Parser {
 
             if (i + 1 < exp.length) {
                 val twoChar = exp.substring(i, i + 2)
-                if (twoChar in logicPrecedence) {
+                if (twoChar in LOGIC) {
                     if (buffer.isNotEmpty()) {
                         tokens.add(buffer.toString())
                         buffer.clear()
