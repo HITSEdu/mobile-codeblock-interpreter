@@ -206,7 +206,7 @@ object MockData {
                     id = 1002,
                     variable = Value("i = 0"),
                     condition = Value("i < 5"),
-                    value = Value("i = i + 1"),
+                    value = Value("i + 1"),
                     scope = Scope(
                         id = 2,
                         operations = listOf(
@@ -218,7 +218,8 @@ object MockData {
                             )
                         )
                     )
-                )
+                ),
+                OperationOutput(Value("arr"))
             )
         ),
         id = 0
@@ -356,4 +357,124 @@ object MockData {
         ),
         id = 8,
     )
+
+    val templateBubbleSort1 = Project(
+        caption = "bbs test",
+        scale = 1f,
+        scopes = emptyList(),
+        id = 12,
+        globalScope = Scope(
+            listOf(
+                OperationArray(
+                    name = "a",
+                    size = 4,
+                    values = listOf(
+                        Value("500"), Value("300"),
+                        Value("100"), Value("200")
+                    )
+                ),
+                OperationFor(
+                    variable = Value("i = 0"),
+                    condition = Value("i < 3"),
+                    value = Value("i + 1"),
+                    scope = Scope(
+                        operations = listOf(
+                            OperationFor(
+                                variable = Value("j = 0"),
+                                condition = Value("j < (3 - i)"),
+                                value = Value("j + 1"),
+                                scope = Scope(
+                                    operations = listOf(
+                                        OperationIf(
+                                            value = Value("2 < 3"),
+                                            scope = Scope(
+                                                operations = listOf(
+                                                    // Swap a[j] and a[j+1]
+                                                    OperationVariable(
+                                                        name = "tmp",
+                                                        value = Value("a[j]")
+                                                    ),
+                                                    OperationArrayIndex(
+                                                        name = "a",
+                                                        index = Value("j"),
+                                                        value = Value("a[j + 1]")
+                                                    ),
+                                                    OperationArrayIndex(
+                                                        name = "a",
+                                                        index = Value("j + 1"),
+                                                        value = Value("tmp")
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                ),
+                OperationOutput(value = Value("a"))
+            )
+        )
+    )
+
+    val nestedLoopsTest = Project(
+        caption = "Nested Loops Test",
+        scale = 1f,
+        scopes = emptyList(),
+        globalScope = Scope(
+            id = 1,
+            operations = listOf(
+                OperationArray(
+                    name = "outerArray",
+                    size = 3,
+                    values = List(3) { Value("0") },
+                    id = 100
+                ),
+                OperationFor(
+                    id = 101,
+                    variable = Value("i = 0"),
+                    condition = Value("i < 3"),
+                    value = Value("i + 1"),
+                    scope = Scope(
+                        id = 2,
+                        operations = listOf(
+                            OperationArrayIndex(
+                                name = "outerArray",
+                                index = Value("i"),
+                                value = Value("i * 10"),
+                                id = 102
+                            ),
+                            OperationFor(
+                                id = 103,
+                                variable = Value("j = 0"),
+                                condition = Value("j < 2"),
+                                value = Value("j + 1"),
+                                scope = Scope(
+                                    id = 3,
+                                    operations = listOf(
+                                        OperationOutput(
+                                            value = Value("i"),
+                                            id = 104
+                                        ),
+                                        OperationOutput(
+                                            value = Value("j"),
+                                            id = 104
+                                        )
+
+                                    )
+                                )
+                            )
+                        )
+                    )
+                ),
+                OperationOutput(
+                    value = Value("outerArray"),
+                    id = 105
+                )
+            )
+        ),
+        id = 0
+    )
+
 }
