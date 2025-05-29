@@ -7,6 +7,9 @@ object ParserLogic {
     fun parseLogicExpression(exp: String, resolve: (String) -> Any): Boolean {
         val output = mutableListOf<String>()
         val stack = Stack<String>()
+        if (Regex("""\b\w+\s*\[\s*[^]]+\s*\]""").findAll(exp).map { it.value }.toList().isNotEmpty()) {
+            return processLogicWithArrays(exp, resolve)
+        }
         val tokens = Tokenizer.tokenizeLogic(exp)
 
         for (token in tokens) {
@@ -87,6 +90,43 @@ object ParserLogic {
         }
     }
 
-    private fun String.isOperand() = !LOGIC.containsKey(this) && this != "(" && this != ")"
+    private fun String.isOperand() = !LOGIC.containsKey(this) && this != "(" && this != ")" && this != "["
     private fun String.isLogicOperator() = this in LOGIC
+
+    private fun processLogicWithArrays(
+        expression: String,
+        resolve: (String) -> Any
+    ): Boolean {
+        val arrayPattern = Regex("""\b\w+\s*\[\s*[^]]+\s*\]""")
+
+        val arrayAccesses = arrayPattern.findAll(expression)
+            .map { it.value }
+            .distinct()
+            .toList()
+
+        var processedExpression = expression
+        arrayAccesses.forEach { arrayAccess ->
+            val resolvedValue = resolve(arrayAccess)
+//            println("$expression, $resolvedValue")
+            try {
+                when (resolvedValue) {
+                    is String -> {
+                        processedExpression = processedExpression.replace(
+                            arrayAccess,
+                            resolvedValue
+                        )
+                    }
+
+                    else -> throw Exception("Array element '$arrayAccess' must be number or boolean for logical operations")
+                }
+            } catch (e: Exception) {
+                throw Exception("Failed to resolve array access '$arrayAccess': ${e.message}")
+            }
+        }
+        return try {
+            parseLogicExpression(processedExpression, resolve)
+        } catch (e: Exception) {
+            throw Exception("Error processing expression after array substitution: ${e.message}")
+        }
+    }
 }

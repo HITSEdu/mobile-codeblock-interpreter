@@ -31,7 +31,6 @@ fun Value.process(
                 Type.DOUBLE -> value.value.toDouble()
                 Type.LOGIC -> ParserLogic.parseLogicExpression(value.value, ::resolve)
                 Type.MATH -> ParserMath.parseMathExpression(value.value, ::resolve)
-                Type.VARIABLE -> value.value
                 else -> value.value
             }
         }

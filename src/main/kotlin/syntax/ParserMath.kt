@@ -9,6 +9,10 @@ object ParserMath {
     fun parseMathExpression(exp: String, resolve: (String) -> Any): Double {
         val output = mutableListOf<String>()
         val stack = Stack<String>()
+
+        if (Regex("""\b\w+\s*\[\s*[^]]+\s*\]""").findAll(exp).map { it.value }.toList().isNotEmpty()) {
+            return processMathWithArrays(exp, resolve)
+        }
         val tokens = tokenizeMath(exp)
 
         for (token in tokens) {
@@ -85,5 +89,41 @@ object ParserMath {
         }
     }
 
-    private fun String.isVariable(): Boolean = matches(Regex("[a-zA-Z_][a-zA-Z0-9_]*"))
+    private fun String.isVariable(): Boolean = matches(Regex("[a-zA-Z_][a-zA-Z0-9_]*(\\[[^\\]]+\\])?"))
+
+    private fun processMathWithArrays(
+        expression: String,
+        resolve: (String) -> Any
+    ): Double {
+        val arrayPattern = Regex("""\b\w+\s*\[\s*[^]]+\s*\]""")
+
+        val arrayAccesses = arrayPattern.findAll(expression)
+            .map { it.value }
+            .distinct()
+            .toList()
+
+        var processedExpression = expression
+        arrayAccesses.forEach { arrayAccess ->
+            val resolvedValue = resolve(arrayAccess)
+            try {
+                when (resolvedValue) {
+                    is String -> {
+                        processedExpression = processedExpression.replace(
+                            arrayAccess,
+                            resolvedValue
+                        )
+                    }
+
+                    else -> throw Exception("Array element '$arrayAccess' must be number or boolean for logical operations")
+                }
+            } catch (e: Exception) {
+                throw Exception("Failed to resolve array access '$arrayAccess': ${e.message}")
+            }
+        }
+        return try {
+            parseMathExpression(processedExpression, resolve)
+        } catch (e: Exception) {
+            throw Exception("Error processing expression after array substitution: ${e.message}")
+        }
+    }
 }

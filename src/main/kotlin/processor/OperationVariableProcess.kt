@@ -4,7 +4,6 @@ import hitsedu.interpreter.models.E
 import hitsedu.interpreter.models.Value
 import hitsedu.interpreter.models.operation.OperationArray
 import hitsedu.interpreter.models.operation.OperationVariable
-import hitsedu.interpreter.syntax.Parser
 import hitsedu.interpreter.syntax.ParserLogic
 import hitsedu.interpreter.syntax.ParserMath
 import hitsedu.interpreter.utils.Type
