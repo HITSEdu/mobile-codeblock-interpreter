@@ -5,6 +5,7 @@ import hitsedu.interpreter.utils.Type
 
 object Validator {
     fun validate(token: String): Type {
+//        println(token)
         return when {
             token.matches(Regex("[a-zA-Z_][a-zA-Z0-9_]*")) -> Type.VARIABLE
             token.matches(Regex("[a-zA-Z_][a-zA-Z0-9_]*\\[\\d+]")) -> Type.ARRAY_ACCESS

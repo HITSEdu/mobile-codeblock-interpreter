@@ -380,4 +380,29 @@ object MockData {
         ),
         id = 8,
     )
+
+    val math = Scope(
+        id = 0,
+        operations = listOf(
+            OperationVariable(
+                id = 2,
+                name = "a",
+                value = Value("((36 * 19) - 150) / 2 + 40"), // 307
+            ),
+            OperationVariable(
+                id = 3,
+                name = "b",
+                value = Value("3 + (((94 / 2) - 1) / 2) /2"), // 14.5
+            ),
+            OperationVariable(
+                id = 4,
+                name = "c",
+                value = Value("1/4"), // 0.25
+            ),
+            OperationOutput(
+                id = 1,
+                value = Value("(a - b) * c"),
+            )
+        )
+    )
 }

@@ -5,5 +5,5 @@ import hitsedu.interpreter.utils.Type
 data class Value(
     val value: String = "",
     val id: Long = 0,
-    val type: Type = Type.INT,
+    val type: Type? = null,
 )
