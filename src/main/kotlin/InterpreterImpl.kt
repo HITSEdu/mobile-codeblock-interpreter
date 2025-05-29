@@ -47,6 +47,10 @@ class InterpreterImpl : Interpreter {
 
                 is OperationIf -> {
                     val condition = operation.process(variables, arrays)
+                    if (condition == null) {
+                        console.add(ConsoleOutput("", E("Error in logic expression", operation.id)))
+                        return
+                    }
                     if (condition) {
                         process(operation.scope)
                     }
@@ -54,7 +58,6 @@ class InterpreterImpl : Interpreter {
                 }
 
                 is OperationElse -> {
-
                     val (prev, condition) = prevOperation ?: run {
                         console.add(ConsoleOutput("", E("If must be before else", operation.id)))
                         return

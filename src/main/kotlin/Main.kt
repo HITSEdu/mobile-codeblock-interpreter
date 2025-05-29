@@ -2,6 +2,6 @@ package hitsedu.interpreter
 
 fun main() {
     val interpreter = InterpreterImpl()
-    interpreter.process(MockData.elseTest.globalScope)
+    interpreter.process(MockData.arr)
     println(interpreter.getConsole().joinToString("\n"))
 }
