@@ -1,9 +1,9 @@
-package models.operation
+package hitsedu.interpreter.models.operation
 
-import models.Value
+import hitsedu.interpreter.models.Value
 
 data class OperationVariable(
     val name: String,
-    var value: Value,
+    val value: Value,
     override val id: Long = 0,
 ) : Operation(id)

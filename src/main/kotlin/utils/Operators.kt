@@ -1,4 +1,4 @@
-package utils
+package hitsedu.interpreter.utils
 
 object Operators {
     val MATH = mapOf(

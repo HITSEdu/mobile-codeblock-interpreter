@@ -1,6 +1,5 @@
 package hitsedu.interpreter.models
 
-import models.Scope
 import kotlin.random.Random
 
 data class Project(

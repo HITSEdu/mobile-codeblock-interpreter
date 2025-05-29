@@ -1,4 +1,4 @@
-package models
+package hitsedu.interpreter.models
 
 data class ConsoleOutput(
     val output: String = "",

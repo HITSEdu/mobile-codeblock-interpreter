@@ -1,7 +1,7 @@
-import utils.MockData
+package hitsedu.interpreter
 
 fun main() {
-    val interpreter = Interpreter()
-    interpreter.process(MockData.arrayTest.globalScope)
+    val interpreter = InterpreterImpl()
+    interpreter.process(MockData.elseTest.globalScope)
     println(interpreter.getConsole().joinToString("\n"))
 }

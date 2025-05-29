@@ -1,7 +1,7 @@
-package processor
+package hitsedu.interpreter.processor
 
-import models.operation.OperationElse
+import hitsedu.interpreter.models.operation.OperationElse
 
 fun OperationElse.process() {
-    TODO("Not impl")
+
 }

@@ -1,7 +1,7 @@
-package models.operation
+package hitsedu.interpreter.models.operation
 
-import models.Scope
-import models.Value
+import hitsedu.interpreter.models.Scope
+import hitsedu.interpreter.models.Value
 
 data class OperationIf(
     val scope: Scope,

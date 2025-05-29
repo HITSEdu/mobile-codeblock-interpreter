@@ -1,9 +1,9 @@
-package utils
+package hitsedu.interpreter
 
 import hitsedu.interpreter.models.Project
-import models.Scope
-import models.Value
-import models.operation.*
+import hitsedu.interpreter.models.Scope
+import hitsedu.interpreter.models.Value
+import hitsedu.interpreter.models.operation.*
 
 object MockData {
     val testOutput = Project(
@@ -206,10 +206,7 @@ object MockData {
             operations = listOf(
                 OperationFor(
                     id = 1002,
-                    variable = OperationVariable(
-                        name = "i",
-                        value = Value("0")
-                    ),
+                    variable = Value("i = 0"),
                     condition = Value("i < 5"),
                     value = Value("i + 1"),
                     scope = Scope(
@@ -245,10 +242,7 @@ object MockData {
                 ),
                 OperationFor(
                     id = 1002,
-                    variable = OperationVariable(
-                        name = "i",
-                        value = Value("0")
-                    ),
+                    variable = Value("i = 0"),
                     condition = Value("i < 5"),
                     value = Value("i = i + 1"),
                     scope = Scope(
@@ -277,10 +271,7 @@ object MockData {
             operations = listOf(
                 OperationFor(
                     id = 1001,
-                    variable = OperationVariable(
-                        name = "i",
-                        value = Value("1")
-                    ),
+                    variable = Value("i = 0"),
                     condition = Value("i <= 5"),
                     value = Value("i = i + 1"),
                     scope = Scope(
@@ -292,6 +283,54 @@ object MockData {
                             )
                         )
                     )
+                )
+            )
+        ),
+        id = 0
+    )
+
+    val elseTest = Project(
+        caption = "else test",
+        scale = 1f,
+        scopes = emptyList(),
+        globalScope = Scope(
+            id = 999,
+            operations = listOf(
+                OperationIf(
+                    scope = Scope(
+                        listOf(
+                            OperationOutput(
+                                value = Value("\"If\""),
+                                id = 6,
+                            )
+                        )
+                    ),
+                    value = Value("3 > 5"),
+                    id = 4
+                ),
+                OperationElse(
+                    scope = Scope(
+                        operations = listOf(
+                            OperationOutput(
+                                value = Value("\"Else\""),
+                                id = 6,
+                            )
+                        ),
+                        id = 94
+                    ),
+                    id = 8
+                ),
+                OperationElse(
+                    scope = Scope(
+                        operations = listOf(
+                            OperationOutput(
+                                value = Value("\"Else with error\""),
+                                id = 1725,
+                            )
+                        ),
+                        id = 12
+                    ),
+                    id = 10
                 )
             )
         ),

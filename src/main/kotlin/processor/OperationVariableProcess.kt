@@ -1,21 +1,21 @@
-package processor
+package hitsedu.interpreter.processor
 
-import models.ConsoleOutput
-import models.Value
-import models.operation.OperationArray
-import models.operation.OperationVariable
-import utils.Parser
+import hitsedu.interpreter.models.E
+import hitsedu.interpreter.models.Value
+import hitsedu.interpreter.models.operation.OperationArray
+import hitsedu.interpreter.models.operation.OperationVariable
+import hitsedu.interpreter.syntax.Parser
 
 fun OperationVariable.process(
     variables: MutableList<OperationVariable>,
     arrays: MutableList<OperationArray>
-): OperationVariable {
+): E? {
     if (value.value.startsWith("\"") && value.value.endsWith("\"")) {
-        return this
+        variables.add(this)
     }
 
     if (value.value == "true" || value.value == "false") {
-        return this
+        variables.add(this)
     }
 
     fun resolve(name: String): Int {
@@ -30,9 +30,9 @@ fun OperationVariable.process(
     }
 
     fun assignVar(name: String, value: Int) {
-        val existingVar = variables.find { it.name == name }
-        if (existingVar != null) {
-            existingVar.value = Value(value.toString())
+        val index = variables.indexOfFirst { it.name == name }
+        if (index != -1) {
+            variables[index] = variables[index].copy(value = Value(value.toString()))
         } else {
             variables.add(OperationVariable(name, Value(value.toString())))
         }
@@ -40,7 +40,8 @@ fun OperationVariable.process(
 
     fun assignArray(name: String, index: Int, value: Int) {
         val array = arrays.find { it.name == name } ?: error("Array $name not found")
-        if (index !in array.values.indices) error("Index $index out of bounds for array $name")
+        if (index !in array.values.indices)
+            error("Index $index out of bounds for array $name")
 
         val newValues = array.values.toMutableList().apply {
             this[index] = Value(value.toString())
@@ -48,12 +49,16 @@ fun OperationVariable.process(
         arrays[arrays.indexOf(array)] = array.copy(values = newValues)
     }
 
-    val result = Parser.parseAssignment(
-        exp = this.value.value,
-        resolve = ::resolve,
-        assignVar = ::assignVar,
-        assignArray = ::assignArray
-    )
-
-    return this.copy(value = Value(result.toString()))
+    return try {
+        val result = Parser.parseAssignment(
+            exp = value.value,
+            resolve = ::resolve,
+            assignVar = ::assignVar,
+            assignArray = ::assignArray
+        )
+        variables.add(copy(value = Value(result.toString())))
+        null
+    } catch (e: Exception) {
+        E(message = e.message ?: "Unknown error", blockId = id)
+    }
 }

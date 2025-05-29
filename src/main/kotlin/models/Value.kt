@@ -1,6 +1,6 @@
-package models
+package hitsedu.interpreter.models
 
 data class Value(
-    var value: String = "",
+    val value: String = "",
     val id: Long = 0,
 )

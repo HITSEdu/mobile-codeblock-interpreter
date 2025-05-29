@@ -1,14 +1,13 @@
-package processor
+package hitsedu.interpreter.processor
 
-import models.Value
-import models.operation.OperationArray
-import models.operation.OperationIf
-import models.operation.OperationVariable
-import utils.Parser
+import hitsedu.interpreter.models.operation.OperationArray
+import hitsedu.interpreter.models.operation.OperationIf
+import hitsedu.interpreter.models.operation.OperationVariable
+import hitsedu.interpreter.syntax.ParserLogic
 
 fun OperationIf.process(
     variables: MutableList<OperationVariable>,
-    arrays: MutableList<OperationArray>
+    arrays: MutableList<OperationArray>,
 ): Boolean {
     fun resolve(name: String): Int {
         return variables.find { it.name == name }?.value?.value?.toIntOrNull()
@@ -21,5 +20,5 @@ fun OperationIf.process(
             } ?: error("Cannot resolve value: $name")
     }
 
-    return Parser.parseLogicExpression(this.value.value, ::resolve)
+    return ParserLogic.parseLogicExpression(this.value.value, ::resolve)
 }

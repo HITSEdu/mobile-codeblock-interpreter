@@ -1,14 +1,23 @@
-package processor
+package hitsedu.interpreter.processor
 
-import models.Value
-import models.operation.OperationArray
-import models.operation.OperationVariable
-import utils.Parser
+import hitsedu.interpreter.models.Value
+import hitsedu.interpreter.models.operation.OperationArray
+import hitsedu.interpreter.models.operation.OperationVariable
+import hitsedu.interpreter.syntax.Parser
 
 fun Value.process(
     variables: MutableList<OperationVariable>,
     arrays: MutableList<OperationArray>,
 ): Int {
+
+    if (value == "true" || value == "false") {
+
+    }
+
+    if (value.startsWith("\"") && value.endsWith("\"")) {
+
+    }
+
     fun resolve(name: String): Int {
         return variables.find { it.name == name }?.value?.value?.toIntOrNull()
             ?: arrays.firstOrNull { array ->
@@ -21,9 +30,9 @@ fun Value.process(
     }
 
     fun assignVar(name: String, value: Int) {
-        val existingVar = variables.find { it.name == name }
-        if (existingVar != null) {
-            existingVar.value = Value(value.toString())
+        val index = variables.indexOfFirst { it.name == name }
+        if (index != -1) {
+            variables[index] = variables[index].copy(value = Value(value.toString()))
         } else {
             variables.add(OperationVariable(name, Value(value.toString())))
         }
@@ -40,7 +49,7 @@ fun Value.process(
     }
 
     return Parser.parseAssignment(
-        exp = this.value,
+        exp = value,
         resolve = ::resolve,
         assignVar = ::assignVar,
         assignArray = ::assignArray
