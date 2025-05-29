@@ -8,7 +8,7 @@ import hitsedu.interpreter.processor.process
 
 class InterpreterImpl : Interpreter {
     private val variables = mutableListOf<OperationVariable>()
-    private val arrays = mutableListOf<OperationArray>()
+    val arrays = mutableListOf<OperationArray>()
     private val console = mutableListOf<ConsoleOutput>()
 
     private val visited = mutableSetOf<Long>()
@@ -74,7 +74,7 @@ class InterpreterImpl : Interpreter {
                 }
 
                 is OperationFor -> {
-                    operation.process()
+                    operation.process(variables, arrays)
                     prevOperation = Pair(operation, false)
                 }
 
