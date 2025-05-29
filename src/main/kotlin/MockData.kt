@@ -22,12 +22,12 @@ object MockData {
                 ),
                 OperationVariable(
                     name = "a",
-                    value = Value("\"150\""),
+                    value = Value("150"),
                     id = 1,
                 ),
                 OperationVariable(
                     name = "logic",
-                    value = Value("true"),
+                    value = Value("8"),
                     id = 5,
                 ),
                 OperationOutput(
@@ -64,44 +64,6 @@ object MockData {
                 ),
             ),
             id = 5,
-        ),
-        id = 0,
-    )
-
-    val printIf = Project(
-        caption = "test if",
-        scale = 1f,
-        scopes = emptyList(),
-        globalScope = Scope(
-            operations = listOf(
-                OperationVariable(
-                    name = "you",
-                    value = Value("\"danil\""),
-                    id = 40,
-                ),
-                OperationIf(
-                    scope = Scope(
-                        listOf(
-                            OperationVariable(
-                                name = "test",
-                                value = Value("15"),
-                                id = 92,
-                            ),
-                            OperationOutput(
-                                value = Value("50"),
-                                id = 3,
-                            )
-                        )
-                    ),
-                    value = Value("5 < 16"),
-                    id = 1488,
-                ),
-                OperationOutput(
-                    value = Value("you"),
-                    id = 3,
-                )
-            ),
-            id = 15,
         ),
         id = 0,
     )
@@ -335,5 +297,63 @@ object MockData {
             )
         ),
         id = 0
+    )
+
+    val mathExpression = Scope(
+        operations = listOf(
+            OperationVariable(
+                name = "a",
+                value = Value("((17 + 3) * 2 + 5)"),
+                id = 4
+            ),
+            OperationIf(
+                scope = Scope(
+                    listOf(
+                        OperationOutput(
+                            value = Value("\"true\""),
+                            id = 735,
+                        )
+                    )
+                ),
+                value = Value("a < 45"),
+                id = 90,
+            ),
+            OperationOutput(
+                value = Value("a"),
+                id = 12,
+            )
+        ),
+        id = 8,
+    )
+
+    val arr = Scope(
+        operations = listOf(
+            OperationArray(
+                name = "arr",
+                values = listOf(
+                    Value("37"),
+                    Value("1488"),
+                    Value("920"),
+                    Value("5"),
+                    Value("777"),
+                ),
+                id = 17,
+            ),
+            OperationArrayIndex(
+                name = "arr",
+                index = Value("2"),
+                value = Value("19999"),
+                id = 801,
+            ),
+            OperationOutput(
+                value = Value("arr"),
+                id = 12,
+            ),
+            OperationOutput(
+                value = Value("(14 > 12 && 18 + 46 > 3) && (15 < 3 || 7 > 9)"),
+                id = 21,
+            )
+        ),
+        id = 8,
     )
 }

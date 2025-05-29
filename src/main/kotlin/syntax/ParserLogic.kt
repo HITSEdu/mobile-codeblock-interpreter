@@ -68,6 +68,6 @@ object ParserLogic {
         }
     }
 
-    private fun String.isOperand() = matches(Regex("[a-zA-Z0-9_()+\\-*/]+"))
+    private fun String.isOperand() = !LOGIC.containsKey(this) && this != "(" && this != ")"
     private fun String.isLogicOperator() = this in LOGIC
 }

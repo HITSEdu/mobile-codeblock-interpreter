@@ -8,7 +8,7 @@ import hitsedu.interpreter.syntax.ParserLogic
 fun OperationIf.process(
     variables: MutableList<OperationVariable>,
     arrays: MutableList<OperationArray>,
-): Boolean {
+): Boolean? {
     fun resolve(name: String): Int {
         return variables.find { it.name == name }?.value?.value?.toIntOrNull()
             ?: arrays.firstOrNull { array ->
@@ -20,5 +20,9 @@ fun OperationIf.process(
             } ?: error("Cannot resolve value: $name")
     }
 
-    return ParserLogic.parseLogicExpression(this.value.value, ::resolve)
+    return try {
+        ParserLogic.parseLogicExpression(this.value.value, ::resolve)
+    } catch (e: Exception) {
+        null
+    }
 }
