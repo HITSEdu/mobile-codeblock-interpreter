@@ -57,13 +57,13 @@ fun OperationOutput.process(
                     val index = ParserMath.parseMathExpression(
                         indexExpr,
                         resolve = { name ->
-                            Value(name).process(variables, arrays)
+                            Value(name).process(variables, arrays)?.value?.toIntOrNull() ?: 0
                         }
                     )
                     if (index < 0 || index >= it.values.size)
                         ConsoleOutput("", E("Array index out of bounds", id))
                     else
-                        ConsoleOutput(it.values[index].value)
+                        ConsoleOutput(it.values[index.toInt()].value)
                 } catch (e: Exception) {
                     ConsoleOutput("", E("${e.message}", id))
                 }
@@ -75,7 +75,7 @@ fun OperationOutput.process(
         val result = ParserMath.parseMathExpression(
             value.value,
             resolve = { name ->
-                Value(name).process(variables, arrays)
+                Value(name).process(variables, arrays)?.value?.toIntOrNull() ?: error("")
             }
         )
         ConsoleOutput(result.toString())

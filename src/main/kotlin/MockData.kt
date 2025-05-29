@@ -356,4 +356,28 @@ object MockData {
         ),
         id = 8,
     )
+
+    val types = Scope(
+        operations = listOf(
+            OperationVariable(
+                name = "l",
+                value = Value("14.2 + 14.1"),
+                id = 812,
+            ),
+            OperationVariable(
+                name = "a",
+                value = Value("\"(4 < 1 |||  != 3) && (4 > 1)\""),
+                id = 800,
+            ),
+            OperationOutput(
+                value = Value("l"),
+                id = 12,
+            ),
+            OperationOutput(
+                value = Value("15 + 32 + ((27 - 5)*3 - 6)/2"),
+                id = 5,
+            ),
+        ),
+        id = 8,
+    )
 }
