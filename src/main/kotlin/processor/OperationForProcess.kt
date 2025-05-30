@@ -1,209 +1,195 @@
 package hitsedu.interpreter.processor
 
-import hitsedu.interpreter.models.ConsoleOutput
 import hitsedu.interpreter.models.E
 import hitsedu.interpreter.models.Value
-import hitsedu.interpreter.models.operation.OperationArray
-import hitsedu.interpreter.models.operation.OperationArrayIndex
-import hitsedu.interpreter.models.operation.OperationFor
-import hitsedu.interpreter.models.operation.OperationIf
-import hitsedu.interpreter.models.operation.OperationOutput
-import hitsedu.interpreter.models.operation.OperationVariable
-import hitsedu.interpreter.syntax.Parser
+import hitsedu.interpreter.models.operation.*
 import hitsedu.interpreter.syntax.ParserLogic
+import hitsedu.interpreter.utils.Type
 
 fun OperationFor.process(
     variables: MutableList<OperationVariable>,
-    arrays: MutableList<OperationArray>,
-    console: MutableList<ConsoleOutput>,
+    arrays: MutableList<OperationArray>
 ): E? {
+    println("[FOR DEBUG] Starting for loop processing")
+    println("[FOR DEBUG] Initialization: ${variable.value}")
+    println("[FOR DEBUG] Condition: ${condition.value}")
+    println("[FOR DEBUG] Step: ${value.value}")
+    println("[FOR DEBUG] Initial variables: ${variables.map { "${it.name}=${it.value.value}" }}")
+    println("[FOR DEBUG] Initial arrays: ${arrays.map { "${it.name}=${it.values.map { it.value }}" }}")
+
     val initParts = variable.value.split("=").map { it.trim() }
     if (initParts.size != 2) {
-        val errorMsg = "Invalid for loop initialization: ${variable.value}"
-        println("[ERROR] $errorMsg")
-        return E(errorMsg, id)
+        val error = E("Invalid for loop initialization: ${variable.value}", id)
+        println("[FOR DEBUG] Initialization error: $error")
+        return error
     }
     val varName = initParts[0]
     val initValue = initParts[1]
 
-    // Инициализируем переменную цикла
-    val initResult = try {
-        println("[FOR INIT] Initializing $varName = $initValue")
-        Parser.parseAssignment(
-            exp = "${varName}=${initValue}",
-            resolve = { name ->
-                variables.find { it.name == name }?.value?.value?.toIntOrNull()
-                    ?: arrays.firstOrNull { array ->
-                        name.startsWith(array.name + "[") && name.endsWith("]")
-                    }?.let { array ->
-                        val indexStr = name.substring(array.name.length + 1, name.length - 1)
-                        val index = indexStr.toIntOrNull() ?: return@let null
-                        array.values.getOrNull(index)?.value?.toIntOrNull()
-                    } ?: error("Cannot resolve value: $name")
-            },
-            assignVar = { name, value ->
-                val index = variables.indexOfFirst { it.name == name }
-                if (index != -1) {
-                    println("[VAR UPDATE] Updating existing variable $name = $value")
-                    variables[index] = variables[index].copy(value = Value(value.toString()))
-                } else {
-                    println("[VAR CREATE] Creating new variable $name = $value")
-                    variables.add(OperationVariable(name, Value(value.toString())))
-                }
-            },
-            assignArray = { name, index, value ->
-                val array = arrays.find { it.name == name } ?: error("Array $name not found")
-                if (index !in array.values.indices) error("Index $index out of bounds for array $name")
-                println("[ARRAY UPDATE] Updating ${array.name}[$index] = $value")
-                val newValues = array.values.toMutableList().apply {
-                    this[index] = Value(value.toString())
-                }
-                arrays[arrays.indexOf(array)] = array.copy(values = newValues)
-            }
-        )
+    val processedInitValue = try {
+        println("[FOR DEBUG] Processing init value: $initValue")
+        Value(initValue).process(variables, arrays)?.also {
+            println("[FOR DEBUG] Processed init value result: ${it.value}")
+        } ?: run {
+            val error = E("Failed to process initial value: $initValue", id)
+            println("[FOR DEBUG] Init value processing failed: $error")
+            return error
+        }
     } catch (e: Exception) {
-        return E("Error in for loop initialization: ${e.message}", id)
+        val error = E("Error processing initial value: ${e.message}", id)
+        println("[FOR DEBUG] Init value processing exception: $error")
+        return error
     }
 
-    var iterationCount = 0
+    variables.find { it.name == varName }?.let {
+        println("[FOR DEBUG] Updating existing variable $varName from ${it.value.value} to ${processedInitValue.value}")
+        variables[variables.indexOf(it)] = it.copy(value = processedInitValue)
+    } ?: run {
+        println("[FOR DEBUG] Adding new variable $varName = ${processedInitValue.value}")
+        variables.add(OperationVariable(varName, processedInitValue))
+    }
+
+    var iteration = 0
     while (true) {
-        iterationCount++
+        iteration++
+        println("\n[FOR DEBUG] Iteration $iteration")
+        println("[FOR DEBUG] Current variables: ${variables.map { "${it.name}=${it.value.value}" }}")
+
         val conditionResult = try {
+            println("[FOR DEBUG] Evaluating condition: ${condition.value}")
             ParserLogic.parseLogicExpression(
                 condition.value,
                 resolve = { name ->
-                    variables.find { it.name == name }?.value?.value?.toIntOrNull()
-                        ?: arrays.firstOrNull { array ->
-                            name.startsWith(array.name + "[") && name.endsWith("]")
-                        }?.let { array ->
-                            val indexStr = name.substring(array.name.length + 1, name.length - 1)
-                            val index = indexStr.toIntOrNull() ?: return@let null
-                            array.values.getOrNull(index)?.value?.toIntOrNull()
-                        } ?: error("Cannot resolve value: $name")
+                    println("[FOR DEBUG] Resolving '$name' for condition")
+                    Value(name).process(variables, arrays)?.let { value ->
+                        val result = when (value.type) {
+                            Type.BOOLEAN -> value.value.toBoolean()
+                            Type.INT -> value.value.toInt()
+                            Type.DOUBLE -> value.value.toDouble()
+                            else -> throw Exception("Condition must evaluate to boolean or number")
+                        }
+                        println("[FOR DEBUG] Resolved '$name' = $result")
+                        result
+                    } ?: throw Exception("Cannot resolve value: $name")
                 }
-            ).also { result ->
-                println("[CONDITION RESULT] $result")
+            ).also {
+                println("[FOR DEBUG] Condition result: $it")
             }
         } catch (e: Exception) {
-            val errorMsg = "Error in for loop condition: ${e.message}"
-            return E(errorMsg, id)
+            val error = E("Error in for loop condition: ${e.message}", id)
+            println("[FOR DEBUG] Condition evaluation error: $error")
+            return error
         }
 
         if (!conditionResult) {
-            println("[LOOP EXIT] Condition false, exiting loop after ${iterationCount-1} iterations")
+            println("[FOR DEBUG] Condition is false, exiting loop")
             break
         }
 
-        // Выполняем тело цикла
-        println("[BODY EXECUTION] Starting body execution with ${scope.operations.size} operations")
+        println("[FOR DEBUG] Executing ${scope.operations.size} operations in loop body")
         for (op in scope.operations) {
-            println("[OP PROCESSING] Processing operation: ${op::class.simpleName} at line ${op.id}")
-            when (op) {
-                is OperationVariable -> op.process(variables, arrays)?.let {
-                    println("[ERROR] Variable operation failed: ${it.message}")
-                    return it
+            println("[FOR DEBUG] Processing operation: ${op::class.simpleName}")
+            when (val result = when (op) {
+                is OperationVariable -> {
+                    println("[FOR DEBUG] Processing variable ${op.name} = ${op.value.value}")
+                    op.process(variables, arrays)
                 }
-                is OperationArray -> op.process(variables, arrays)?.let {
-                    println("[ERROR] Array operation failed: ${it.message}")
-                    return it
+                is OperationArray -> {
+                    println("[FOR DEBUG] Processing array ${op.name}")
+                    op.process(variables, arrays)
                 }
-                is OperationArrayIndex -> op.process(variables, arrays)?.let {
-                    println("[ERROR] Array index operation failed: ${it.message}")
-                    return it
+                is OperationArrayIndex -> {
+                    println("[FOR DEBUG] Processing array index ${op.name}[${op.index.value}] = ${op.value.value}")
+                    op.process(variables, arrays)
                 }
                 is OperationOutput -> {
-                    console.add(op.process(variables, arrays))
+                    println("[FOR DEBUG] Processing output ${op.value.value}")
+                    op.process(variables, arrays).exception
                 }
-
                 is OperationIf -> {
-                    println("[IF PROCESSING] Processing if condition at line ${op.id}")
-                    val ifResult = try {
-                        op.process(variables, arrays)
-                    } catch (e: Exception) {
-                        return E("Error in if condition: ${e.message}", op.id)
-                    }
-
-                    when (ifResult) {
+                    println("[FOR DEBUG] Processing if condition ${op.value.value}")
+                    when (val conditionResult = op.process(variables, arrays)) {
                         true -> {
-                            for (ifOp in op.scope.operations) {
-                                println("[IF OP PROCESSING] Processing if operation: ${ifOp::class.simpleName} at line ${ifOp.id}")
-                                val result = when (ifOp) {
-                                    is OperationVariable -> ifOp.process(variables, arrays)
-                                    is OperationArray -> ifOp.process(variables, arrays)
-                                    is OperationArrayIndex -> ifOp.process(variables, arrays)
-                                    is OperationOutput -> {
-                                        ifOp.process(variables, arrays)
-                                        null
-                                    }
-                                    is OperationFor -> ifOp.process(variables, arrays, console)
-                                    else -> {
-                                        return E("Unsupported operation in if body: ${ifOp::class.simpleName}", ifOp.id)
-                                    }
-                                }
-                                if (result != null) {
-                                    println("[ERROR] Operation failed: ${result.message}")
-                                    return result
+                            println("[FOR DEBUG] If condition is true, executing scope")
+                            for (innerOp in op.scope.operations) {
+                                when (val innerResult = when (innerOp) {
+                                    is OperationVariable -> innerOp.process(variables, arrays)
+                                    is OperationArray -> innerOp.process(variables, arrays)
+                                    is OperationArrayIndex -> innerOp.process(variables, arrays)
+                                    is OperationOutput -> innerOp.process(variables, arrays).exception
+                                    is OperationIf -> innerOp.process(variables, arrays)?.let { E("If condition failed", innerOp.id) }
+                                    is OperationFor -> innerOp.process(variables, arrays)
+                                    else -> E("Unsupported operation in if body", innerOp.id)
+                                }) {
+                                    null -> continue
+                                    else -> return innerResult
                                 }
                             }
+                            null
                         }
-                        false -> println("[IF FALSE] Skipping if body")
-                        else -> {
-                            return E("Invalid if condition result", op.id)
+                        false -> {
+                            println("[FOR DEBUG] If condition is false, skipping scope")
+                            null
                         }
+                        else -> conditionResult?.let { E("If condition evaluation failed", op.id) } ?: E("Unknown if condition error", op.id)
                     }
                 }
                 is OperationFor -> {
-                    println("[NESTED FOR] Starting nested for loop")
-                    op.process(variables, arrays, console)?.let {
-                        println("[ERROR] Nested for loop failed: ${it.message}")
-                        return it
-                    }
+                    println("[FOR DEBUG] Processing nested for loop")
+                    op.process(variables, arrays)
                 }
                 else -> {
-                    return E("Unsupported operation in for loop body", op.id)
+                    val error = E("Unsupported operation in for loop body", op.id)
+                    println("[FOR DEBUG] Unsupported operation: $error")
+                    error
+                }
+            }) {
+                null -> {
+                    println("[FOR DEBUG] Operation completed successfully")
+                    continue
+                }
+                else -> {
+                    println("[FOR DEBUG] Operation failed: $result")
+                    return result
                 }
             }
         }
 
-        try {
-            println("[STEP EXECUTION] Executing step: ${varName}=${value.value}")
-            Parser.parseAssignment(
-                exp = "${varName}=${value.value}",
-                resolve = { name ->
-                    variables.find { it.name == name }?.value?.value?.toIntOrNull()
-                        ?: arrays.firstOrNull { array ->
-                            name.startsWith(array.name + "[") && name.endsWith("]")
-                        }?.let { array ->
-                            val indexStr = name.substring(array.name.length + 1, name.length - 1)
-                            val index = indexStr.toIntOrNull() ?: return@let null
-                            array.values.getOrNull(index)?.value?.toIntOrNull()
-                        } ?: error("Cannot resolve value: $name")
-                },
-                assignVar = { name, value ->
-                    val index = variables.indexOfFirst { it.name == name }
-                    if (index != -1) {
-                        println("[VAR UPDATE] Updating $name = $value")
-                        variables[index] = variables[index].copy(value = Value(value.toString()))
-                    } else {
-                        println("[VAR CREATE] Creating $name = $value")
-                        variables.add(OperationVariable(name, Value(value.toString())))
-                    }
-                },
-                assignArray = { name, index, value ->
-                    val array = arrays.find { it.name == name } ?: error("Array $name not found")
-                    if (index !in array.values.indices) error("Index $index out of bounds for array $name")
-                    println("[ARRAY UPDATE] Updating ${array.name}[$index] = $value")
-                    val newValues = array.values.toMutableList().apply {
-                        this[index] = Value(value.toString())
-                    }
-                    arrays[arrays.indexOf(array)] = array.copy(values = newValues)
+        val stepExpression = value.value
+        println("[FOR DEBUG] Processing step: $stepExpression")
+        val processedStepValue = try {
+            val currentVar = variables.find { it.name == varName }
+                ?: return E("Loop variable $varName not found", id).also {
+                    println("[FOR DEBUG] Variable $varName not found")
                 }
-            )
+
+            val currentValue = currentVar.value.value
+            println("[FOR DEBUG] Current $varName value: $currentValue")
+
+            val expressionToProcess = stepExpression.replace(varName, currentValue)
+            println("[FOR DEBUG] Expression after replacement: $expressionToProcess")
+
+            Value(expressionToProcess).process(variables, arrays)?.also {
+                println("[FOR DEBUG] Step result: ${it.value}")
+            } ?: return E("Failed to process step value: $stepExpression", id).also {
+                println("[FOR DEBUG] Step processing returned null")
+            }
         } catch (e: Exception) {
-            return E("Error in for loop step: ${e.message}", id)
+            val error = E("Error processing step value: ${e.message}", id)
+            println("[FOR DEBUG] Step processing error: $error")
+            return error
+        }
+
+        variables.find { it.name == varName }?.let {
+            println("[FOR DEBUG] Updating $varName from ${it.value.value} to ${processedStepValue.value}")
+            variables[variables.indexOf(it)] = it.copy(value = processedStepValue)
+        } ?: return E("Loop variable $varName not found", id).also {
+            println("[FOR DEBUG] Variable $varName not found for update")
         }
     }
 
-    println("[FOR LOOP] Finished processing for loop at line $id")
+    println("[FOR DEBUG] Loop completed successfully")
+    println("[FOR DEBUG] Final variables: ${variables.map { "${it.name}=${it.value.value}" }}")
+    println("[FOR DEBUG] Final arrays: ${arrays.map { "${it.name}=${it.values.map { it.value }}" }}")
     return null
 }

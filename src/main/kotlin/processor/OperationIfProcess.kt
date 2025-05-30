@@ -19,24 +19,16 @@ fun OperationIf.process(
             v.toDoubleOrNull() != null -> return v.toDouble()
         }
 
-        variables.find { it.name == v }?.value?.let { value ->
-            return when (value.type) {
-                Type.BOOLEAN -> value.value.toBoolean()
-                Type.INT -> value.value.toInt()
-                Type.DOUBLE -> value.value.toDouble()
-                Type.LOGIC -> ParserLogic.parseLogicExpression(value.value, ::resolve)
-                Type.MATH -> ParserMath.parseMathExpression(value.value, ::resolve)
-                else -> value.value
-            }
-        }
-
         if (v.contains("[") && v.endsWith("]")) {
             val arrayName = v.substringBefore("[")
             val indexExpr = v.substringAfter("[").substringBefore("]")
 
             val index = when {
                 indexExpr.toIntOrNull() != null -> indexExpr.toInt()
-                else -> ParserMath.parseMathExpression(indexExpr, ::resolve).toInt()
+                else -> ParserMath.parseMathExpression(indexExpr) { name ->
+                    variables.find { it.name == name }?.value?.value?.toDoubleOrNull()
+                        ?: error("Cannot resolve variable: $name")
+                }.toInt()
             }
 
             return arrays.find { it.name == arrayName }?.values?.getOrNull(index)?.let { value ->
@@ -44,19 +36,29 @@ fun OperationIf.process(
                     Type.BOOLEAN -> value.value.toBoolean()
                     Type.INT -> value.value.toInt()
                     Type.DOUBLE -> value.value.toDouble()
-                    Type.LOGIC -> ParserLogic.parseLogicExpression(value.value, ::resolve)
-                    Type.MATH -> ParserMath.parseMathExpression(value.value, ::resolve)
-                    else -> value.value
+                    else -> error("Array element must be number or boolean")
                 }
             } ?: error("Array element not found: $v")
+        }
+
+        variables.find { it.name == v }?.value?.let { value ->
+            return when (value.type) {
+                Type.BOOLEAN -> value.value.toBoolean()
+                Type.INT -> value.value.toInt()
+                Type.DOUBLE -> value.value.toDouble()
+                else -> error("Variable must be number or boolean")
+            }
         }
 
         error("Cannot resolve value: $v")
     }
 
     return try {
-        ParserLogic.parseLogicExpression(this.value.value, ::resolve)
+        val result = ParserLogic.parseLogicExpression(this.value.value, ::resolve)
+        println("[IF DEBUG] Condition '${this.value.value}' evaluated to $result")
+        result
     } catch (e: Exception) {
+        println("Error evaluating if condition '${this.value.value}': ${e.message}")
         null
     }
 }

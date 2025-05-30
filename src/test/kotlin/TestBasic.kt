@@ -1,10 +1,7 @@
 import hitsedu.interpreter.InterpreterImpl
 import hitsedu.interpreter.models.Scope
 import hitsedu.interpreter.models.Value
-import hitsedu.interpreter.models.operation.OperationArray
-import hitsedu.interpreter.models.operation.OperationArrayIndex
-import hitsedu.interpreter.models.operation.OperationOutput
-import hitsedu.interpreter.models.operation.OperationVariable
+import hitsedu.interpreter.models.operation.*
 import org.junit.jupiter.api.Test
 import kotlin.test.junit5.JUnit5Asserter.assertEquals
 
@@ -111,7 +108,7 @@ class TestBasic {
             message = "[OUT]: Math with array",
         )
         assertEquals(
-            expected = "[1111.0, 2, 3, 4, 5]",
+            expected = "[1111, 2, 3, 4, 5]",
             actual = output[1].output,
             message = "[OUT]: Math with array",
         )
@@ -197,6 +194,56 @@ class TestBasic {
             expected = "false",
             actual = output[1].output,
             message = "[OUT]: Math with array",
+        )
+    }
+
+    @Test
+    fun testArraySum() {
+        val interpreter = InterpreterImpl()
+        val scope = Scope(
+            id = 0,
+            operations = listOf(
+                OperationArray(
+                    id = 1,
+                    name = "arr",
+                    values = listOf(
+                        Value("10"),
+                        Value("20"),
+                        Value("30"),
+                    ),
+                ),
+                OperationVariable(
+                    id = 2,
+                    name = "sum",
+                    value = Value("0"),
+                ),
+                OperationFor(
+                    id = 3,
+                    variable = Value("i = 0"),
+                    condition = Value("i < 3"),
+                    value = Value("i + 1"),
+                    scope = Scope(
+                        operations = listOf(
+                            OperationVariable(
+                                id = 4,
+                                name = "sum",
+                                value = Value("sum + arr[i]"),
+                            )
+                        )
+                    )
+                ),
+                OperationOutput(
+                    id = 5,
+                    value = Value("sum"),
+                ),
+            )
+        )
+        interpreter.process(scope)
+        val output = interpreter.getConsole()[0]
+        assertEquals(
+            expected = "60.0",
+            actual = output.output,
+            message = "[OUT]: Sum of array using loop",
         )
     }
 }

@@ -97,36 +97,22 @@ object ParserLogic {
         expression: String,
         resolve: (String) -> Any
     ): Boolean {
-        val arrayPattern = Regex("""\b\w+\s*\[\s*[^]]+\s*\]""")
-
-        val arrayAccesses = arrayPattern.findAll(expression)
-            .map { it.value }
-            .distinct()
-            .toList()
+        val arrayPattern = Regex("""\b\w+\s*\[\s*[^\]]+\s*\]""")
 
         var processedExpression = expression
-        arrayAccesses.forEach { arrayAccess ->
+        arrayPattern.findAll(expression).forEach { match ->
+            val arrayAccess = match.value
             val resolvedValue = resolve(arrayAccess)
-//            println("$expression, $resolvedValue")
-            try {
+            processedExpression = processedExpression.replace(
+                arrayAccess,
                 when (resolvedValue) {
-                    is String -> {
-                        processedExpression = processedExpression.replace(
-                            arrayAccess,
-                            resolvedValue
-                        )
-                    }
-
-                    else -> throw Exception("Array element '$arrayAccess' must be number or boolean for logical operations")
+                    is Number -> resolvedValue.toString()
+                    is Boolean -> resolvedValue.toString()
+                    else -> error("Array element must be number or boolean")
                 }
-            } catch (e: Exception) {
-                throw Exception("Failed to resolve array access '$arrayAccess': ${e.message}")
-            }
+            )
         }
-        return try {
-            parseLogicExpression(processedExpression, resolve)
-        } catch (e: Exception) {
-            throw Exception("Error processing expression after array substitution: ${e.message}")
-        }
+
+        return parseLogicExpression(processedExpression, resolve)
     }
 }

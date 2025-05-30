@@ -17,6 +17,7 @@ fun Value.process(
     } catch (e: Exception) {
         return null
     }
+
     fun resolve(v: String): Any {
         when {
             v == "true" -> return true
@@ -24,6 +25,7 @@ fun Value.process(
             v.toIntOrNull() != null -> return v.toInt()
             v.toDoubleOrNull() != null -> return v.toDouble()
         }
+
         variables.find { it.name == v }?.value?.let { value ->
             return when (value.type) {
                 Type.BOOLEAN -> value.value.toBoolean()
@@ -34,21 +36,30 @@ fun Value.process(
                 else -> value.value
             }
         }
+
         if (v.contains("[") && v.endsWith("]")) {
             val arrayName = v.substringBefore("[")
-            val indexStr = v.substringAfter("[").substringBefore("]")
-            val index = indexStr.toIntOrNull() ?: error("Invalid array index: $indexStr")
-            return arrays.find { it.name == arrayName }?.values?.getOrNull(index)?.let { value ->
+            val indexExpr = v.substringAfter("[").substringBefore("]")
+
+            val indexValue = try {
+                ParserMath.parseMathExpression(indexExpr) { name ->
+                    variables.find { it.name == name }?.value?.value?.toDoubleOrNull()
+                        ?: error("Cannot resolve variable: $name")
+                }.toInt()
+            } catch (e: Exception) {
+                error("Error processing array index: ${e.message}")
+            }
+
+            return arrays.find { it.name == arrayName }?.values?.getOrNull(indexValue)?.let { value ->
                 when (value.type) {
                     Type.BOOLEAN -> value.value.toBoolean()
                     Type.INT -> value.value.toInt()
                     Type.DOUBLE -> value.value.toDouble()
-                    Type.LOGIC -> ParserLogic.parseLogicExpression(value.value, ::resolve)
-                    Type.MATH -> ParserMath.parseMathExpression(value.value, ::resolve)
-                    else -> value.value
+                    else -> error("Array element must be number or boolean")
                 }
             } ?: error("Array element not found: $v")
         }
+
         error("Cannot resolve value: $v")
     }
 

@@ -97,29 +97,24 @@ object ParserMath {
     ): Double {
         val arrayPattern = Regex("""\b\w+\s*\[\s*[^]]+\s*\]""")
 
-        val arrayAccesses = arrayPattern.findAll(expression)
-            .map { it.value }
-            .distinct()
-            .toList()
-
         var processedExpression = expression
-        arrayAccesses.forEach { arrayAccess ->
-            val resolvedValue = resolve(arrayAccess)
+        arrayPattern.findAll(expression).forEach { match ->
+            val arrayAccess = match.value
             try {
-                when (resolvedValue) {
-                    is String -> {
-                        processedExpression = processedExpression.replace(
-                            arrayAccess,
-                            resolvedValue
-                        )
+                val resolvedValue = resolve(arrayAccess)
+                processedExpression = processedExpression.replace(
+                    arrayAccess,
+                    when (resolvedValue) {
+                        is Number -> resolvedValue.toString()
+                        is Boolean -> if (resolvedValue) "1" else "0"
+                        else -> error("Array element must be number or boolean")
                     }
-
-                    else -> throw Exception("Array element '$arrayAccess' must be number or boolean for logical operations")
-                }
+                )
             } catch (e: Exception) {
                 throw Exception("Failed to resolve array access '$arrayAccess': ${e.message}")
             }
         }
+
         return try {
             parseMathExpression(processedExpression, resolve)
         } catch (e: Exception) {

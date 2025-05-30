@@ -13,7 +13,6 @@ object Tokenizer {
             when {
                 c.isWhitespace() -> i++
                 c.isDigit() || c == '.' && i + 1 < exp.length && exp[i + 1].isDigit() -> {
-                    // Обработка чисел
                     buffer.append(c)
                     i++
                     while (i < exp.length) {
@@ -29,7 +28,6 @@ object Tokenizer {
                     buffer.clear()
                 }
                 c.isLetter() || c == '_' -> {
-                    // Обработка переменных и массивов
                     buffer.append(c)
                     i++
                     while (i < exp.length) {
@@ -37,14 +35,13 @@ object Tokenizer {
                         if (nextChar.isLetterOrDigit() || nextChar == '_' || nextChar == '[' || nextChar == ']') {
                             buffer.append(nextChar)
                             i++
-                            // Если это массив, читаем до закрывающей скобки
                             if (nextChar == '[') {
                                 while (i < exp.length && exp[i] != ']') {
                                     buffer.append(exp[i])
                                     i++
                                 }
                                 if (i < exp.length) {
-                                    buffer.append(exp[i]) // добавляем ']'
+                                    buffer.append(exp[i])
                                     i++
                                 }
                             }
