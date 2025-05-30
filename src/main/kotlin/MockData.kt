@@ -600,4 +600,49 @@ object MockData {
     )
 
 
+    val fibonacci = Project(
+        caption = "fibonacci test",
+        scale = 1f,
+        scopes = emptyList(),
+        id = 12,
+        globalScope = Scope(
+            listOf(
+                OperationVariable(
+                    "fib1",
+                    Value("1")
+                ),
+                OperationVariable(  // Добавлена инициализация fib2
+                    "fib2",
+                    Value("1")
+                ),
+                OperationVariable(
+                    "n",
+                    Value("8")
+                ),
+                OperationFor(
+                    variable = Value("i = 0"),
+                    condition = Value("i < n"),
+                    value = Value("i + 1"),
+                    scope = Scope(
+                        operations = listOf(
+                            OperationVariable(
+                                "tmp",
+                                Value("fib1")
+                            ),
+                            OperationVariable(
+                                "fib1",
+                                Value("fib2")
+                            ),
+                            OperationVariable(
+                                "fib2",
+                                Value("tmp + fib2")
+                            ),
+                            OperationOutput(Value("fib2"))
+                        )
+                    )
+                ),
+                OperationOutput(Value("fib2"))
+            )
+        )
+    )
 }

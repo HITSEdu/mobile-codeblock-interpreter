@@ -74,7 +74,11 @@ class InterpreterImpl : Interpreter {
                 }
 
                 is OperationFor -> {
-                    operation.process(variables, arrays)
+                    val e = operation.process(variables, arrays, console)
+                    if (e != null) {
+                        console.add(ConsoleOutput("", e))
+                        return
+                    }
                     prevOperation = Pair(operation, false)
                 }
 

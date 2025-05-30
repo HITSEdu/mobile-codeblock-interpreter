@@ -1,15 +1,19 @@
 package hitsedu.interpreter.processor
 
+import hitsedu.interpreter.models.ConsoleOutput
 import hitsedu.interpreter.models.E
 import hitsedu.interpreter.models.Value
 import hitsedu.interpreter.models.operation.*
 import hitsedu.interpreter.syntax.ParserLogic
 import hitsedu.interpreter.utils.Type
 
+
 fun OperationFor.process(
     variables: MutableList<OperationVariable>,
-    arrays: MutableList<OperationArray>
+    arrays: MutableList<OperationArray>,
+    console: MutableList<ConsoleOutput>
 ): E? {
+    val outputs = mutableListOf<ConsoleOutput>()
     println("[FOR DEBUG] Starting for loop processing")
     println("[FOR DEBUG] Initialization: ${variable.value}")
     println("[FOR DEBUG] Condition: ${condition.value}")
@@ -104,7 +108,10 @@ fun OperationFor.process(
                 }
                 is OperationOutput -> {
                     println("[FOR DEBUG] Processing output ${op.value.value}")
-                    op.process(variables, arrays).exception
+                    val output = op.process(variables, arrays)
+                    outputs.add(output)
+                    output.exception?.let { return it }
+                    null
                 }
                 is OperationIf -> {
                     println("[FOR DEBUG] Processing if condition ${op.value.value}")
@@ -118,7 +125,7 @@ fun OperationFor.process(
                                     is OperationArrayIndex -> innerOp.process(variables, arrays)
                                     is OperationOutput -> innerOp.process(variables, arrays).exception
                                     is OperationIf -> innerOp.process(variables, arrays)?.let { E("If condition failed", innerOp.id) }
-                                    is OperationFor -> innerOp.process(variables, arrays)
+                                    is OperationFor -> innerOp.process(variables, arrays, console)
                                     else -> E("Unsupported operation in if body", innerOp.id)
                                 }) {
                                     null -> continue
@@ -136,7 +143,7 @@ fun OperationFor.process(
                 }
                 is OperationFor -> {
                     println("[FOR DEBUG] Processing nested for loop")
-                    op.process(variables, arrays)
+                    op.process(variables, arrays, console)
                 }
                 else -> {
                     val error = E("Unsupported operation in for loop body", op.id)
@@ -191,5 +198,6 @@ fun OperationFor.process(
     println("[FOR DEBUG] Loop completed successfully")
     println("[FOR DEBUG] Final variables: ${variables.map { "${it.name}=${it.value.value}" }}")
     println("[FOR DEBUG] Final arrays: ${arrays.map { "${it.name}=${it.values.map { it.value }}" }}")
+    outputs.forEach { console.add(it) }
     return null
 }
