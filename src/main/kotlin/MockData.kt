@@ -356,4 +356,128 @@ object MockData {
         ),
         id = 8,
     )
+
+    val types = Scope(
+        operations = listOf(
+            OperationVariable(
+                name = "a",
+                value = Value("(4 < 1 || 3 != 3) && 4 > 1"),
+                id = 800,
+            ),
+            OperationOutput(
+                value = Value("a"),
+                id = 12,
+            ),
+        ),
+        id = 8,
+    )
+
+    val math = Scope(
+        id = 0,
+        operations = listOf(
+            OperationVariable(
+                id = 2,
+                name = "a",
+                value = Value("((36 * 19) - 150) / 2 + 40"), // 307
+            ),
+            OperationVariable(
+                id = 3,
+                name = "b",
+                value = Value("3 + (((94 / 2) - 1) / 2) /2"), // 14.5
+            ),
+            OperationVariable(
+                id = 4,
+                name = "c",
+                value = Value("1/4"), // 0.25
+            ),
+            OperationOutput(
+                id = 1,
+                value = Value("(a - b) * c"),
+            )
+        )
+    )
+
+    val scope = Scope(
+        id = 918274,
+        operations = listOf(
+            OperationArray(
+                id = 9182,
+                name = "cities",
+                values = listOf(Value("\"Москва\""), Value("\"Санкт-Петербург\""))
+            ),
+            OperationArray(
+                id = 918274153247,
+                name = "temps",
+                values = listOf(Value("22"), Value("18"))
+            ),
+            OperationVariable(
+                id = 918274817352467,
+                name = "cityIndex", value = Value("0")
+            ),
+            OperationIf(
+                value = Value("temps[cityIndex] > 20"),
+                scope = Scope(
+                    id = 91827455555,
+                    operations = listOf(
+                        OperationOutput(
+                            id = 9182741873264,
+                            value = Value("cities[cityIndex]")
+                        ),
+                        OperationIf(
+                            id = 91827417236,
+                            value = Value("temps[cityIndex] > 25"),
+                            scope = Scope(
+                                operations = listOf(
+                                    OperationOutput(
+                                        id = 9182741123,
+                                        value = Value("\"Очень жарко!\"")
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                )
+            ),
+            OperationArrayIndex(
+                id = 918274012947,
+                name = "temps",
+                index = Value("1"),
+                value = Value("19")
+            ),
+            OperationOutput(
+                id = 91827400987273,
+                value = Value("\"Данные обновлены\"")
+            )
+        )
+    )
+
+    val s = Scope(
+        id = 0,
+        operations = listOf(
+            OperationArray(
+                id = 20,
+                name = "arr",
+                values = listOf(
+                    Value("1"), Value("2"), Value("3")
+                ),
+            ),
+            OperationVariable(
+                id = 2,
+                name = "a",
+                value = Value("1"),
+            ),
+            OperationOutput(
+                id = 1,
+                value = Value("arr[1]"),
+            ),
+            OperationOutput(
+                id = 1,
+                value = Value("arr[0] + arr[1] + 10000"),
+            ),
+            OperationOutput(
+                id = 17,
+                value = Value("5 <= arr[a]"),
+            )
+        )
+    )
 }

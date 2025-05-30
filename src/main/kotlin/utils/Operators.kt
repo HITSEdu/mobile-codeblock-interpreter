@@ -6,6 +6,8 @@ object Operators {
         "-" to 1,
         "*" to 2,
         "/" to 2,
+        "%" to 2,
+        "^" to 3,
         "=" to 0,
     )
 
@@ -18,7 +20,5 @@ object Operators {
         ">" to 3,
         "<=" to 3,
         ">=" to 3,
-//        "true" to 4,
-//        "false" to 4,
     )
 }

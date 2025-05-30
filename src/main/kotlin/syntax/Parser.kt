@@ -1,16 +1,17 @@
 package hitsedu.interpreter.syntax
 
+import com.sun.org.apache.xalan.internal.lib.ExsltStrings.tokenize
 import hitsedu.interpreter.syntax.ParserMath.parseMathExpression
-import hitsedu.interpreter.syntax.Tokenizer.tokenize
+import hitsedu.interpreter.syntax.Tokenizer.tokenizeMath
 
 object Parser {
     fun parseAssignment(
         exp: String,
         resolve: (String) -> Int,
-        assignVar: (String, Int) -> Unit,
-        assignArray: (String, Int, Int) -> Unit
+        assignVar: (String, Double) -> Unit,
+        assignArray: (String, Int, Double) -> Unit
     ): Int {
-        val tokens = tokenize(exp)
+        val tokens = tokenizeMath(exp)
         val assignIndex = tokens.indexOf("=")
 
         if (assignIndex > 0) {
@@ -21,19 +22,19 @@ object Parser {
                 leftPart.isVariable() -> {
                     val value = parseMathExpression(rightPart, resolve)
                     assignVar(leftPart, value)
-                    return value
+                    return value.toInt()
                 }
 
                 leftPart.isArrayAccess() -> {
                     val (arrayName, index) = parseArrayAccess(leftPart)
                     val value = parseMathExpression(rightPart, resolve)
                     assignArray(arrayName, index, value)
-                    return value
+                    return value.toInt()
                 }
             }
         }
 
-        return parseMathExpression(exp, resolve)
+        return parseMathExpression(exp, resolve).toInt()
     }
 
     private fun parseArrayAccess(access: String): Pair<String, Int> {

@@ -74,7 +74,7 @@ class InterpreterImpl : Interpreter {
                 }
 
                 is OperationFor -> {
-                    operation.process()
+                    operation.process(variables, arrays, console)
                     prevOperation = Pair(operation, false)
                 }
 
